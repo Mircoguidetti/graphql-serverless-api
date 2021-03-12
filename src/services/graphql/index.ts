@@ -14,10 +14,6 @@ export default new ApolloServer({
     }
     return err
   },
-  context: async (integrationContext): Promise<Record<string, unknown>> => {
-    return {
-      ...integrationContext,
-    }
-  },
+
   schema: makeExecutableFromModules(modules),
 })

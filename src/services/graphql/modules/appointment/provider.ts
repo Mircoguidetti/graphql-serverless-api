@@ -1,10 +1,10 @@
 import { dynamoDB } from '../../../dynamodb/client'
 import { AppointmentInterface, AppointmentBookingInterface } from './interfaces'
 import { DentistProvider } from '../dentist/provider'
-import { v4 as uuidv4 } from 'uuid'
-import moment from 'moment'
 import { UserProvider } from '../user/provider'
 import { checkDateFormat } from '../../utils'
+import { v4 as uuidv4 } from 'uuid'
+import moment from 'moment'
 
 export class AppointmentProvider {
   private static tableName: string = 'appointments'

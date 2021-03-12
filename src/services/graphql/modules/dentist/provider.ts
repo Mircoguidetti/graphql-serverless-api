@@ -26,6 +26,7 @@ export class DentistProvider {
   }
 
   static async createDentist({ email, firstName, lastName }): Promise<DentistCreationInterface> {
+    // Check if email is valid
     if (!validator.validate(email)) return { message: 'Dentist Email not valid!', isCreated: false }
     const params = {
       TableName: this.tableName,
@@ -35,6 +36,8 @@ export class DentistProvider {
         lastName,
       },
     }
+
+    // Create dentist
     try {
       await dynamoDB.put(params).promise()
       return { message: 'Dentist Created!', isCreated: true }

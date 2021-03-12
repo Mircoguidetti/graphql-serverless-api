@@ -25,6 +25,7 @@ export class UserProvider {
   }
 
   static async createUser({ email, firstName, lastName }): Promise<UserCreationInterface> {
+    // Check if email is valid
     if (!validator.validate(email)) return { message: 'User Email not valid!', isCreated: false }
     const params = {
       TableName: this.tableName,
@@ -34,6 +35,7 @@ export class UserProvider {
         lastName,
       },
     }
+    // Create user
     try {
       await dynamoDB.put(params).promise()
       return { message: 'User Created!', isCreated: true }
