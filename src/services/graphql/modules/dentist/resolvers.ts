@@ -11,7 +11,6 @@ export const resolvers = {
     },
     dentists: async (_, args): Promise<DentistInterface> => {
       const dentists = await DentistProvider.getDentists(args)
-      console.log(dentists)
       return {
         totalCount: dentists.length,
         ...connectionFromArray(dentists, args),

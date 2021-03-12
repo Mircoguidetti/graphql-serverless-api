@@ -33,5 +33,5 @@ export const makeExecutableFromModules = (modules): any => {
 }
 
 export const checkDateFormat = (date) => {
-  return moment(date, 'YYYY-MM-DD hh:mm').format('YYYY-MM-DD hh:mm') === date
+  return moment(date, 'YYYY-MM-DD hh:mm', true).isValid()
 }

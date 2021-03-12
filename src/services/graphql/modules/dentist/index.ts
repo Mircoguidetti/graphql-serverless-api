@@ -5,7 +5,6 @@ export const dentistModule = {
   resolvers,
   typeDefs: gql`
     type Dentist {
-      id: Int!
       firstName: String
       lastName: String
       email: String

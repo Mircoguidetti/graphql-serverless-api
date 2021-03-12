@@ -81,7 +81,14 @@ export class AppointmentProvider {
 
     // Check date format to book an appointment
     const appointmentDuration = momentEndTime.diff(momentStartTime, 'minutes')
-
+    const appointmentStartTimeDiffNow = momentStartTime.diff(moment(), 'minutes')
+    const appointmentEndTimeDiffNow = momentEndTime.diff(moment(), 'minutes')
+    if (appointmentStartTimeDiffNow < 0 || appointmentEndTimeDiffNow < 0) {
+      return {
+        message: 'Appointment (start on end) must be in the future!',
+        isBooked: false,
+      }
+    }
     if (appointmentDuration > 60 || appointmentDuration <= 0) {
       return {
         message: 'Appointment duration must be less then 1hour!',
