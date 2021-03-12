@@ -2,12 +2,6 @@
 
 ## Development
 
-First ensure you have `husky` setup in `.git/hooks` by running:
-
-```sh
-npm i -D husky
-```
-
 Install dependencies:
 
 ```sh
