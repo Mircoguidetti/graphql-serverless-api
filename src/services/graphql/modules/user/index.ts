@@ -30,6 +30,7 @@ export const userModule = {
       user(email: String!): User
       users(first: Int!, after: String): UserConnection!
     }
+
     extend type Mutation {
       createUser(email: String!, firstName: String!, lastName: String!): UserCreation!
     }

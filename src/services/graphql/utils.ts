@@ -2,6 +2,7 @@ import deepmerge from 'deepmerge'
 import { gql } from 'apollo-server-lambda'
 import { makeExecutableSchema } from 'graphql-tools'
 import moment from 'moment'
+import scalars from './scalars'
 
 export const makeExecutableFromModules = (modules): any => {
   const globalTypeDefs = gql`
@@ -15,9 +16,9 @@ export const makeExecutableFromModules = (modules): any => {
     }
   `
 
-  let typeDefs = [globalTypeDefs]
+  let typeDefs = [globalTypeDefs, ...scalars.typeDefs]
 
-  let resolvers = {}
+  let resolvers = { ...scalars.resolvers }
 
   modules.forEach((module) => {
     typeDefs = [...typeDefs, ...module.typeDefs]

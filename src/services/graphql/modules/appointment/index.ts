@@ -6,9 +6,9 @@ export const appointmentModule = {
   typeDefs: gql`
     type Appointment {
       id: String!
-      createdAt: Int
-      startTime: Int
-      endTime: Int
+      createdAt: DateTime!
+      startTime: DateTime!
+      endTime: DateTime!
     }
 
     type AppointmentBooking {
