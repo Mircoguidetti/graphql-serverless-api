@@ -9,12 +9,10 @@ export const appointmentModule = {
       createdAt: DateTime!
       startTime: DateTime!
       endTime: DateTime!
+      userEmail: String!
+      dentistEmail: String!
     }
 
-    type AppointmentBooking {
-      isBooked: Boolean!
-      message: String!
-    }
     type AppointmentConnection {
       totalCount: Int!
       pageInfo: PageInfo
@@ -26,12 +24,7 @@ export const appointmentModule = {
     }
 
     extend type Mutation {
-      createAppointment(
-        userEmail: String!
-        dentistEmail: String!
-        startTime: String!
-        endTime: String!
-      ): AppointmentBooking!
+      createAppointment(userEmail: String!, dentistEmail: String!, startTime: String!, endTime: String!): Appointment!
     }
   `,
 }

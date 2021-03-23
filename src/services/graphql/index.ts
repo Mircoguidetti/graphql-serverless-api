@@ -3,6 +3,7 @@ import depthLimit from 'graphql-depth-limit'
 import { makeExecutableFromModules } from './utils'
 import modules from './modules'
 import { GraphQLFormattedError } from 'graphql'
+import { dynamoDB } from '../dynamodb/client'
 
 export default new ApolloServer({
   validationRules: [depthLimit(15)],
@@ -13,6 +14,13 @@ export default new ApolloServer({
       return new ApolloError('Internal server error')
     }
     return err
+  },
+
+  context: async (integrationContext): Promise<Record<string, unknown>> => {
+    return {
+      dynamoDB,
+      ...integrationContext,
+    }
   },
 
   schema: makeExecutableFromModules(modules),

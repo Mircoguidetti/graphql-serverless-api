@@ -1,11 +1,11 @@
-import { dynamoDB } from '../../../dynamodb/client'
-import { DentistInterface, DentistCreationInterface } from './interfaces'
+import { DentistInterface } from './interfaces'
 import validator from 'email-validator'
+import { UserInputError } from 'apollo-server-lambda'
 
 export class DentistProvider {
   private static tableName: string = 'dentists'
 
-  static async getDentist({ email }): Promise<DentistInterface> {
+  static async getDentist({ email }, dynamoDB): Promise<DentistInterface> {
     const params = {
       TableName: this.tableName,
       Key: { email },
@@ -15,7 +15,7 @@ export class DentistProvider {
     return Item
   }
 
-  static async getDentists({ first }): Promise<DentistInterface[]> {
+  static async getDentists({ first }, dynamoDB): Promise<DentistInterface[]> {
     const params = {
       TableName: this.tableName,
       Limit: first,
@@ -25,25 +25,27 @@ export class DentistProvider {
     return Items
   }
 
-  static async createDentist({ email, firstName, lastName }): Promise<DentistCreationInterface> {
+  static async createDentist(item, dynamoDB): Promise<DentistInterface> {
     // Check if email is valid
-    if (!validator.validate(email)) return { message: 'Dentist Email not valid!', isCreated: false }
+    if (!validator.validate(item.email)) throw new UserInputError('Dentist email not valid!')
+
+    const dentist = await this.getDentist({ email: item.email }, dynamoDB)
+    if (dentist) throw new UserInputError('Dentist already exist!')
+
     const params = {
       TableName: this.tableName,
       Item: {
-        email,
-        firstName,
-        lastName,
+        ...item,
       },
     }
 
     // Create dentist
     try {
       await dynamoDB.put(params).promise()
-      return { message: 'Dentist Created!', isCreated: true }
+      return item
     } catch (error) {
       console.log('Error: ', error)
-      return { message: error.message, isCreated: false }
+      throw new UserInputError(error.message)
     }
   }
 }

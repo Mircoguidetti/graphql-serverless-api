@@ -1,10 +1,10 @@
-import { dynamoDB } from '../../../dynamodb/client'
-import { UserInterface, UserCreationInterface } from './interfaces'
+import { UserInterface } from './interfaces'
 import validator from 'email-validator'
+import { UserInputError } from 'apollo-server-lambda'
 export class UserProvider {
   private static tableName: string = 'users'
 
-  static async getUser({ email }): Promise<UserInterface> {
+  static async getUser({ email }, dynamoDB): Promise<UserInterface> {
     const params = {
       TableName: this.tableName,
       Key: { email },
@@ -14,7 +14,7 @@ export class UserProvider {
     return Item
   }
 
-  static async getUsers({ first }): Promise<UserInterface[]> {
+  static async getUsers({ first }, dynamoDB): Promise<UserInterface[]> {
     const params = {
       TableName: this.tableName,
       Limit: first,
@@ -24,24 +24,25 @@ export class UserProvider {
     return Items
   }
 
-  static async createUser({ email, firstName, lastName }): Promise<UserCreationInterface> {
+  static async createUser(item, dynamoDB): Promise<UserInterface> {
     // Check if email is valid
-    if (!validator.validate(email)) return { message: 'User Email not valid!', isCreated: false }
+    if (!validator.validate(item.email)) throw new UserInputError('User email is not valid!')
+
+    const user = await this.getUser({ email: item.email }, dynamoDB)
+
+    if (user) throw new UserInputError('User already exist!')
+
     const params = {
       TableName: this.tableName,
-      Item: {
-        email,
-        firstName,
-        lastName,
-      },
+      Item: { ...item },
     }
     // Create user
     try {
       await dynamoDB.put(params).promise()
-      return { message: 'User Created!', isCreated: true }
+      return item
     } catch (error) {
       console.log('Error: ', error)
-      return { message: error.message, isCreated: false }
+      throw new UserInputError(error.message)
     }
   }
 }

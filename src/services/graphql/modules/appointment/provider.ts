@@ -1,19 +1,18 @@
-import { dynamoDB } from '../../../dynamodb/client'
-import { AppointmentInterface, AppointmentBookingInterface } from './interfaces'
+import { AppointmentInterface } from './interfaces'
 import { DentistProvider } from '../dentist/provider'
 import { UserProvider } from '../user/provider'
 import { checkDateFormat } from '../../utils'
 import { v4 as uuidv4 } from 'uuid'
 import moment from 'moment'
+import { UserInputError } from 'apollo-server-lambda'
 
 export class AppointmentProvider {
   private static tableName: string = 'appointments'
 
-  private static async getAppointmentsByDentistAndDateRange({
-    dentistEmail,
-    startTime,
-    endTime,
-  }): Promise<AppointmentInterface[]> {
+  private static async getAppointmentsByDentistAndDateRange(
+    { dentistEmail, startTime, endTime },
+    dynamoDB
+  ): Promise<AppointmentInterface[]> {
     const params = {
       TableName: this.tableName,
       ExpressionAttributeNames: {
@@ -34,11 +33,18 @@ export class AppointmentProvider {
     return Items
   }
 
-  static async getAppointmentByUserEmail(userEmail, { first }): Promise<AppointmentInterface[]> {
+  static async getAppointmentByUserEmail(userEmail, { first }, dynamoDB): Promise<AppointmentInterface[]> {
     const params = {
       TableName: this.tableName,
       Limit: first,
-      KeyConditionExpression: `userEmail = ${userEmail}`,
+      ExpressionAttributeNames: {
+        '#userEmail': 'userEmail',
+      },
+
+      ExpressionAttributeValues: {
+        ':userEmail': userEmail,
+      },
+      FilterExpression: '#userEmail = :userEmail',
     }
 
     const { Items } = await dynamoDB.scan(params).promise()
@@ -46,11 +52,18 @@ export class AppointmentProvider {
     return Items
   }
 
-  static async getAppointmentByDentistEmail(dentistEmail, { first }): Promise<AppointmentInterface[]> {
+  static async getAppointmentByDentistEmail(dentistEmail, { first }, dynamoDB): Promise<AppointmentInterface[]> {
     const params = {
       TableName: this.tableName,
       Limit: first,
-      KeyConditionExpression: `dentistEmail = ${dentistEmail}`,
+      ExpressionAttributeNames: {
+        '#dentistEmail': 'dentistEmail',
+      },
+
+      ExpressionAttributeValues: {
+        ':dentistEmail': dentistEmail,
+      },
+      FilterExpression: '#dentistEmail = :dentistEmail',
     }
 
     const { Items } = await dynamoDB.scan(params).promise()
@@ -58,72 +71,69 @@ export class AppointmentProvider {
     return Items
   }
 
-  static async createAppointment({
-    userEmail,
-    dentistEmail,
-    startTime,
-    endTime,
-  }): Promise<AppointmentBookingInterface> {
-    const momentStartTime = moment(startTime)
-    const momentEndTime = moment(endTime)
+  static async createAppointment(
+    { userEmail, dentistEmail, startTime, endTime },
+    dynamoDB
+  ): Promise<AppointmentInterface> {
+    const momentStartTime = moment(startTime, 'YYYY-MM-DD hh:mm')
+    const momentEndTime = moment(endTime, 'YYYY-MM-DD hh:mm')
 
     if (!checkDateFormat(startTime) || !checkDateFormat(endTime)) {
-      return { message: 'Invalid date format (YYYY-MM-DD hh:mm)', isBooked: false }
+      throw new UserInputError('Invalid date format (YYYY-MM-DD hh:mm)')
     }
 
     // Get user and check if exist
-    const user = await UserProvider.getUser({ email: userEmail })
-    if (!user) return { message: 'User not found!', isBooked: false }
+    const user = await UserProvider.getUser({ email: userEmail }, dynamoDB)
+    if (!user) throw new UserInputError('User not found!')
 
     // Get dentist and check if exist
-    const dentist = await DentistProvider.getDentist({ email: dentistEmail })
-    if (!dentist) return { message: 'Dentist not found!', isBooked: false }
+    const dentist = await DentistProvider.getDentist({ email: dentistEmail }, dynamoDB)
+    if (!dentist) throw new UserInputError('Dentist not found!')
 
     // Check date format to book an appointment
     const appointmentDuration = momentEndTime.diff(momentStartTime, 'minutes')
     const appointmentStartTimeDiffNow = momentStartTime.diff(moment(), 'minutes')
     const appointmentEndTimeDiffNow = momentEndTime.diff(moment(), 'minutes')
     if (appointmentStartTimeDiffNow < 0 || appointmentEndTimeDiffNow < 0) {
-      return {
-        message: 'Appointment (start on end) must be in the future!',
-        isBooked: false,
-      }
+      throw new UserInputError('Appointment (start on end) must be in the future!')
     }
     if (appointmentDuration > 60 || appointmentDuration <= 0) {
-      return {
-        message: 'Appointment duration must be less then 1hour!',
-        isBooked: false,
-      }
+      throw new UserInputError('Appointment duration must be less then 1hour!')
     }
 
     // Get dentist appointments and check space
-    const dentistAppointments = await this.getAppointmentsByDentistAndDateRange({
-      dentistEmail,
-      endTime: momentEndTime.unix(),
-      startTime: momentStartTime.unix(),
-    })
+    const dentistAppointments = await this.getAppointmentsByDentistAndDateRange(
+      {
+        dentistEmail: dentistEmail,
+        endTime: momentEndTime.unix(),
+        startTime: momentStartTime.unix(),
+      },
+      dynamoDB
+    )
     if (dentistAppointments.length > 0) {
-      return { message: 'No space between these two dates!', isBooked: false }
+      throw new UserInputError('No space between these two dates!')
     }
-
+    const item = {
+      id: uuidv4(),
+      userEmail,
+      dentistEmail,
+      createdAt: moment().unix(),
+      startTime: momentStartTime.unix(),
+      endTime: momentEndTime.unix(),
+    }
     // Book appointment
     const params = {
       TableName: this.tableName,
       Item: {
-        id: uuidv4(),
-        userEmail,
-        dentistEmail,
-        createdAt: moment().unix(),
-        startTime: momentStartTime.unix(),
-        endTime: momentEndTime.unix(),
+        ...item,
       },
     }
     try {
       await dynamoDB.put(params).promise()
-      return { message: 'Appointment booked!', isBooked: true }
+      return item
     } catch (error) {
       console.log('Error: ', error)
-      return { message: error.message, isBooked: false }
+      throw new UserInputError(error.message)
     }
   }
 }

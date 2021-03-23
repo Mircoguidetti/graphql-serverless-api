@@ -11,11 +11,6 @@ export const userModule = {
       appointments(first: Int!, after: String): AppointmentConnection!
     }
 
-    type UserCreation {
-      isCreated: Boolean!
-      message: String!
-    }
-
     type UserConnection {
       totalCount: Int!
       pageInfo: PageInfo
@@ -32,7 +27,7 @@ export const userModule = {
     }
 
     extend type Mutation {
-      createUser(email: String!, firstName: String!, lastName: String!): UserCreation!
+      createUser(email: String!, firstName: String!, lastName: String!): User!
     }
   `,
 }
