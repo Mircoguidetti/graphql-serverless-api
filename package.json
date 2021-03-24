@@ -5,7 +5,7 @@
   "license": "ISC",
   "scripts": {
     "start": "serverless offline start",
-    "test-watch": "jest --passWithNoTests --watch",
+    "test": "jest --detectOpenHandles",
     "deploy:aws": "serverless deploy -v --stage dev  --force",
     "check-types": "tsc --outDir .tmp",
     "eslint:fix": "eslint src --fix",
@@ -33,17 +33,21 @@
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.11.0",
     "@babel/preset-typescript": "^7.10.4",
+    "@types/jest": "^26.0.21",
     "@typescript-eslint/eslint-plugin": "^4.4.0",
     "@typescript-eslint/parser": "^4.4.0",
+    "apollo-server-testing": "^2.21.2",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.1",
+    "faker": "^5.4.0",
     "husky": "^4.3.0",
-    "jest": "^25.3.0",
+    "jest": "^26.6.3",
     "lint-staged": "^10.0.9",
     "prettier": "^2.0.2",
     "serverless": "^1.67.0",
     "serverless-offline": "^6.1.4",
     "serverless-prune-plugin": "^1.4.2",
+    "ts-jest": "^26.5.4",
     "ts-loader": "^8.0.2"
   },
   "babel": {
@@ -52,14 +56,6 @@
     ],
     "plugins": [
       "@babel/plugin-proposal-optional-chaining"
-    ]
-  },
-  "jest": {
-    "setupFilesAfterEnv": [
-      "./src/tests/config/setupFilesAfterEnv.js"
-    ],
-    "testPathIgnorePatterns": [
-      ".integration.test.js"
     ]
   },
   "husky": {
