@@ -1,16 +1,15 @@
-import { createTestServer } from '../testUtils'
-import { mockDentist } from '../mock-data'
-import { createMockArray } from '../testUtils'
+import { createTestServer, createMockArray } from '../../testUtils'
+import { mockDentist } from '../faker-data'
 
 describe('Dentist queries', () => {
   test('Get single dentist', async () => {
-    const mocksResolvers = {
+    const mockResolvers = {
       Query: () => ({
         dentist: () => mockDentist,
       }),
     }
 
-    const { query } = createTestServer(mocksResolvers)
+    const { query } = createTestServer(mockResolvers)
 
     // graphl query
     const GET_DENTIST = `
@@ -28,16 +27,12 @@ describe('Dentist queries', () => {
   })
 
   test('Get list of dentists', async () => {
-    const mockDentists = createMockArray(mockDentist, 10)
-
-    const mocksResolvers = {
+    const mockResolvers = {
       Query: () => ({
-        dentists: () => mockDentists,
+        dentists: () => createMockArray(mockDentist, 10),
       }),
     }
-
-    const { query } = createTestServer(mocksResolvers)
-
+    const { query } = createTestServer(mockResolvers)
     // graphl query
     const GET_DENTISTS = `
       query dentists {

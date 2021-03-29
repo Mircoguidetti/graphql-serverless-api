@@ -18,12 +18,10 @@ export const resolvers = {
     },
   },
   User: {
-    appointments: async ({ email: userEmail }, args, { dynamoDB }): Promise<AppointmentInterface> => {
-      const appointments: AppointmentInterface[] = await AppointmentProvider.getAppointmentByUserEmail(
-        userEmail,
-        args,
-        dynamoDB
-      )
+    appointments: async ({ email: userEmail }, args, { dynamoDB, injector }): Promise<AppointmentInterface> => {
+      const appointments: AppointmentInterface[] = await injector
+        .get(AppointmentProvider)
+        .getAppointmentByUserEmail(userEmail, args, dynamoDB)
 
       return {
         totalCount: appointments.length,
