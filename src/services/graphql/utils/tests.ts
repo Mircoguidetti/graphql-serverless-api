@@ -1,9 +1,10 @@
 import { createTestClient, ApolloServerTestClient } from 'apollo-server-testing'
 import { ApolloServer } from 'apollo-server-lambda'
-import modules from '../graphql/modules'
+import modules from '../modules'
 
 export const createTestServer = (mocks): ApolloServerTestClient => {
-  return createTestClient(new ApolloServer({ mocks, modules }) as any)
+  const server = new ApolloServer({ mocks, modules })
+  return createTestClient(server)
 }
 
 export const createMockArray = (mock, fakerNumber: number) => {

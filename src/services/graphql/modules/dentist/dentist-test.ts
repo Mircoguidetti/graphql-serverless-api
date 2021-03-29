@@ -1,5 +1,11 @@
-import { createTestServer, createMockArray } from '../../testUtils'
-import { mockDentist } from '../faker-data'
+import { createTestServer, createMockArray } from '../../utils/tests'
+import faker from 'faker'
+
+export const mockDentist = {
+  firstName: faker.name.firstName(),
+  lastName: faker.name.lastName(),
+  email: faker.internet.email(),
+}
 
 describe('Dentist queries', () => {
   test('Get single dentist', async () => {

@@ -22,4 +22,4 @@ export default new ApolloServer({
       ...integrationContext,
     }
   },
-}) as any
+})
