@@ -1,6 +1,9 @@
-import { gql } from 'apollo-server-lambda'
+import { createModule, gql } from 'graphql-modules'
 
-export const commonModule = {
+export const CommonModule = createModule({
+  id: 'common',
+  dirname: __dirname,
+  resolvers: {},
   typeDefs: gql`
     type Query
     type Mutation
@@ -11,4 +14,4 @@ export const commonModule = {
       hasNextPage: Boolean!
     }
   `,
-}
+})

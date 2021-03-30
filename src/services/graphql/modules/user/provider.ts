@@ -1,10 +1,12 @@
+import { Injectable } from 'graphql-modules'
 import { UserInterface } from './interfaces'
 import validator from 'email-validator'
 import { UserInputError } from 'apollo-server-lambda'
+@Injectable()
 export class UserProvider {
-  private static tableName: string = 'users'
+  private tableName = 'users'
 
-  static async getUser({ email }, dynamoDB): Promise<UserInterface> {
+  async getUser({ email }, dynamoDB): Promise<UserInterface> {
     const params = {
       TableName: this.tableName,
       Key: { email },
@@ -14,7 +16,7 @@ export class UserProvider {
     return Item
   }
 
-  static async getUsers({ first }, dynamoDB): Promise<UserInterface[]> {
+  async getUsers({ first }, dynamoDB): Promise<UserInterface[]> {
     const params = {
       TableName: this.tableName,
       Limit: first,
@@ -24,7 +26,7 @@ export class UserProvider {
     return Items
   }
 
-  static async createUser(item, dynamoDB): Promise<UserInterface> {
+  async createUser(item, dynamoDB): Promise<UserInterface> {
     // Check if email is valid
     if (!validator.validate(item.email)) throw new UserInputError('User email is not valid!')
 

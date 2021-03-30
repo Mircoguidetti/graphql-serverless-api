@@ -1,12 +1,12 @@
-import 'graphql-import-node'
+import 'reflect-metadata'
 import { ApolloServer, ApolloError } from 'apollo-server-lambda'
 import depthLimit from 'graphql-depth-limit'
-import modules from './modules'
+import schema from './modules'
 import { GraphQLFormattedError } from 'graphql'
-import { dynamoDB } from '../dynamodb/client'
+import { dynamoDB } from './dynamodb/client'
 
 export default new ApolloServer({
-  modules,
+  schema,
   validationRules: [depthLimit(15)],
   formatError: (err): GraphQLFormattedError<Record<string, unknown>> => {
     console.log('ERROR', err)

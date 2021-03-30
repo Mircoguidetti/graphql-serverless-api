@@ -6,11 +6,11 @@ import { connectionFromArray } from 'graphql-relay'
 
 export const resolvers = {
   Query: {
-    user: async (_, args, { dynamoDB }): Promise<UserInterface> => {
-      return UserProvider.getUser(args, dynamoDB)
+    user: async (_, args, { dynamoDB, injector }): Promise<UserInterface> => {
+      return injector.get(UserProvider).getUser(args, dynamoDB)
     },
-    users: async (_, args, { dynamoDB }): Promise<UserInterface[]> => {
-      const users = await UserProvider.getUsers(args, dynamoDB)
+    users: async (_, args, { dynamoDB, injector }) => {
+      const users = await injector.get(UserProvider).getUsers(args, dynamoDB)
       return {
         totalCount: users.length,
         ...connectionFromArray(users, args),
@@ -18,12 +18,10 @@ export const resolvers = {
     },
   },
   User: {
-    appointments: async ({ email: userEmail }, args, { dynamoDB }): Promise<AppointmentInterface> => {
-      const appointments: AppointmentInterface[] = await AppointmentProvider.getAppointmentByUserEmail(
-        userEmail,
-        args,
-        dynamoDB
-      )
+    appointments: async ({ email: userEmail }, args, { dynamoDB, injector }) => {
+      const appointments: AppointmentInterface[] = await injector
+        .get(AppointmentProvider)
+        .getAppointmentByUserEmail(userEmail, args, dynamoDB)
 
       return {
         totalCount: appointments.length,
@@ -32,8 +30,8 @@ export const resolvers = {
     },
   },
   Mutation: {
-    createUser: async (_, args, { dynamoDB }): Promise<UserInterface> => {
-      return UserProvider.createUser(args, dynamoDB)
+    createUser: async (_, args, { dynamoDB, injector }): Promise<UserInterface> => {
+      return injector.get(UserProvider).createUser(args, dynamoDB)
     },
   },
 }

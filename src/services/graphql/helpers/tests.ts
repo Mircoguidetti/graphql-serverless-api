@@ -1,9 +1,10 @@
+import 'reflect-metadata'
 import { createTestClient, ApolloServerTestClient } from 'apollo-server-testing'
 import { ApolloServer } from 'apollo-server-lambda'
-import modules from '../modules'
+import schema from '../modules'
 
 export const createTestServer = (mocks): ApolloServerTestClient => {
-  const server = new ApolloServer({ mocks, modules })
+  const server = new ApolloServer({ mocks, schema })
   return createTestClient(server)
 }
 

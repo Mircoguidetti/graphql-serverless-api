@@ -1,4 +1,4 @@
-import { createTestServer, createMockArray } from '../../utils/tests'
+import { createTestServer, createMockArray } from '../../helpers/tests'
 import faker from 'faker'
 
 export const mockDentist = {

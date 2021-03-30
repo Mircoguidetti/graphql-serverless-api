@@ -6,11 +6,11 @@ import { connectionFromArray } from 'graphql-relay'
 
 export const resolvers = {
   Query: {
-    dentist: async (_, args, { dynamoDB }): Promise<DentistInterface> => {
-      return DentistProvider.getDentist(args, dynamoDB)
+    dentist: async (_, args, { dynamoDB, injector }): Promise<DentistInterface> => {
+      return injector.get(DentistProvider).getDentist(args, dynamoDB)
     },
-    dentists: async (_, args, { dynamoDB }): Promise<DentistInterface> => {
-      const dentists = await DentistProvider.getDentists(args, dynamoDB)
+    dentists: async (_, args, { dynamoDB, injector }) => {
+      const dentists = await injector.get(DentistProvider).getDentists(args, dynamoDB)
       return {
         totalCount: dentists.length,
         ...connectionFromArray(dentists, args),
@@ -19,12 +19,10 @@ export const resolvers = {
   },
 
   Dentist: {
-    appointments: async ({ email: dentistEmail }, args, { dynamoDB }): Promise<AppointmentInterface> => {
-      const appointments: AppointmentInterface[] = await AppointmentProvider.getAppointmentByDentistEmail(
-        dentistEmail,
-        args,
-        dynamoDB
-      )
+    appointments: async ({ email: dentistEmail }, args, { dynamoDB, injector }) => {
+      const appointments: AppointmentInterface[] = await injector
+        .get(AppointmentProvider)
+        .getAppointmentByDentistEmail(dentistEmail, args, dynamoDB)
 
       return {
         totalCount: appointments.length,
@@ -33,8 +31,8 @@ export const resolvers = {
     },
   },
   Mutation: {
-    createDentist: async (_, args, { dynamoDB }): Promise<DentistInterface> => {
-      return DentistProvider.createDentist(args, dynamoDB)
+    createDentist: async (_, args, { dynamoDB, injector }): Promise<DentistInterface> => {
+      return injector.get(DentistProvider).createDentist(args, dynamoDB)
     },
   },
 }
