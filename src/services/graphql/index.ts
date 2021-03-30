@@ -1,3 +1,4 @@
+import 'graphql-import-node'
 import { ApolloServer, ApolloError } from 'apollo-server-lambda'
 import depthLimit from 'graphql-depth-limit'
 import modules from './modules'

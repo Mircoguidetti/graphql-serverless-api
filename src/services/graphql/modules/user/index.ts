@@ -1,33 +1,7 @@
-import { gql } from 'apollo-server-lambda'
+import * as typeDefs from './schema.graphql'
 import { resolvers } from './resolvers'
 
 export const userModule = {
   resolvers,
-  typeDefs: gql`
-    type User {
-      firstName: String
-      lastName: String
-      email: String
-      appointments(first: Int!, after: String): AppointmentConnection!
-    }
-
-    type UserConnection {
-      totalCount: Int!
-      pageInfo: PageInfo
-      edges: [UserEdge!]!
-    }
-
-    type UserEdge {
-      node: User!
-    }
-
-    extend type Query {
-      user(email: String!): User
-      users(first: Int!, after: String): UserConnection!
-    }
-
-    extend type Mutation {
-      createUser(email: String!, firstName: String!, lastName: String!): User!
-    }
-  `,
+  typeDefs,
 }

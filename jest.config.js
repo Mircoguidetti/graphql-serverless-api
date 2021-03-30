@@ -2,7 +2,8 @@ module.exports = {
   clearMocks: true,
   testEnvironment: 'node',
   preset: 'ts-jest',
-  testMatch: [
-    '<rootDir>/src/**/*-test.ts',
-],
+  transform: {
+    '^.+\\.graphql$': 'graphql-import-node/jest',
+  },
+  testMatch: ['<rootDir>/src/**/*-test.ts'],
 }

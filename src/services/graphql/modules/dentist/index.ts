@@ -1,32 +1,7 @@
-import { gql } from 'apollo-server-lambda'
+import * as typeDefs from './schema.graphql'
 import { resolvers } from './resolvers'
 
 export const dentistModule = {
   resolvers,
-  typeDefs: gql`
-    type Dentist {
-      firstName: String
-      lastName: String
-      email: String
-      appointments(first: Int!, after: String): AppointmentConnection!
-    }
-
-    type DentistConnection {
-      totalCount: Int!
-      pageInfo: PageInfo
-      edges: [DentistEdge!]!
-    }
-
-    type DentistEdge {
-      node: User!
-    }
-
-    extend type Query {
-      dentist(email: String!): Dentist
-      dentists(first: Int!, after: String): DentistConnection!
-    }
-    extend type Mutation {
-      createDentist(email: String!, firstName: String!, lastName: String!): Dentist!
-    }
-  `,
+  typeDefs,
 }
