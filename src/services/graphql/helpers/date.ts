@@ -1,6 +1,6 @@
 import moment from 'moment'
 
-export const checkDateFormat = (startTime, endTime): string | null => {
+export const validateAppointmentDate = (startTime, endTime): string | null => {
   const momentStartTime = moment(startTime, 'YYYY-MM-DD hh:mm')
   const momentEndTime = moment(endTime, 'YYYY-MM-DD hh:mm')
 

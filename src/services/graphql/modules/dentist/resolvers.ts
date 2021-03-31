@@ -1,8 +1,10 @@
+import { connectionFromArray } from 'graphql-relay'
+import validator from 'email-validator'
+import { UserInputError } from 'apollo-server-lambda'
 import { AppointmentProvider } from '../appointment/provider'
 import { AppointmentInterface } from '../appointment/interfaces'
 import { DentistProvider } from './provider'
 import { DentistInterface } from './interfaces'
-import { connectionFromArray } from 'graphql-relay'
 
 export const resolvers = {
   Query: {
@@ -32,6 +34,14 @@ export const resolvers = {
   },
   Mutation: {
     createDentist: async (_, args, { dynamoDB, injector }): Promise<DentistInterface> => {
+      // Check if email is valid
+      if (!validator.validate(args.email)) throw new UserInputError('Dentist email not valid!')
+
+      // Check if dentist already extist
+      const dentist = await injector.get(DentistProvider).getDentist({ email: args.email }, dynamoDB)
+      if (dentist) throw new UserInputError('Dentist already exist!')
+
+      // Create dentist
       return injector.get(DentistProvider).createDentist(args, dynamoDB)
     },
   },

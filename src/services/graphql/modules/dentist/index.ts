@@ -1,11 +1,12 @@
 import { createModule, gql } from 'graphql-modules'
 import { resolvers } from './resolvers'
 import { DentistProvider } from './provider'
+import { AppointmentProvider } from '../appointment/provider'
 
 export const DentistModule = createModule({
   id: 'dentist',
   dirname: __dirname,
-  providers: [DentistProvider],
+  providers: [DentistProvider, AppointmentProvider],
   resolvers,
   typeDefs: gql`
     type Dentist {

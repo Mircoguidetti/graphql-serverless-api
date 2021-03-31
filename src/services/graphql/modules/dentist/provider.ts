@@ -1,7 +1,5 @@
 import { Injectable } from 'graphql-modules'
 import { DentistInterface } from './interfaces'
-import validator from 'email-validator'
-import { UserInputError } from 'apollo-server-lambda'
 
 @Injectable()
 export class DentistProvider {
@@ -27,27 +25,16 @@ export class DentistProvider {
     return Items
   }
 
-  async createDentist(item, dynamoDB): Promise<DentistInterface> {
-    // Check if email is valid
-    if (!validator.validate(item.email)) throw new UserInputError('Dentist email not valid!')
-
-    const dentist = await this.getDentist({ email: item.email }, dynamoDB)
-    if (dentist) throw new UserInputError('Dentist already exist!')
-
+  async createDentist(dentist, dynamoDB): Promise<DentistInterface> {
     const params = {
       TableName: this.tableName,
       Item: {
-        ...item,
+        ...dentist,
       },
     }
 
     // Create dentist
-    try {
-      await dynamoDB.put(params).promise()
-      return item
-    } catch (error) {
-      console.log('Error: ', error)
-      throw new UserInputError(error.message)
-    }
+    await dynamoDB.put(params).promise()
+    return dentist
   }
 }

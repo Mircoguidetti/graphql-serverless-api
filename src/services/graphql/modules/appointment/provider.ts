@@ -2,7 +2,6 @@ import { Injectable } from 'graphql-modules'
 import { AppointmentInterface } from './interfaces'
 import { v4 as uuidv4 } from 'uuid'
 import moment from 'moment'
-import { UserInputError } from 'apollo-server-lambda'
 
 @Injectable()
 export class AppointmentProvider {
@@ -74,7 +73,7 @@ export class AppointmentProvider {
     const momentStartTimeUnix = moment(startTime, 'YYYY-MM-DD hh:mm').unix()
     const momentEndTimeUnix = moment(endTime, 'YYYY-MM-DD hh:mm').unix()
 
-    const item = {
+    const appointment = {
       id: uuidv4(),
       userEmail,
       dentistEmail,
@@ -86,15 +85,10 @@ export class AppointmentProvider {
     const params = {
       TableName: this.tableName,
       Item: {
-        ...item,
+        ...appointment,
       },
     }
-    try {
-      await dynamoDB.put(params).promise()
-      return item
-    } catch (error) {
-      console.log('Error: ', error)
-      throw new UserInputError(error.message)
-    }
+    await dynamoDB.put(params).promise()
+    return appointment
   }
 }

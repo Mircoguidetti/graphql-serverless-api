@@ -3,7 +3,7 @@ import { AppointmentProvider } from './provider'
 import { AppointmentInterface } from './interfaces'
 import { UserProvider } from '../user/provider'
 import { DentistProvider } from '../dentist/provider'
-import { checkDateFormat } from '../../helpers/date'
+import { validateAppointmentDate } from '../../helpers/date'
 
 export const resolvers = {
   Mutation: {
@@ -11,7 +11,7 @@ export const resolvers = {
       // Validate date format
       const { startTime, endTime, userEmail: email } = args
 
-      const isDateFormatInvalid = checkDateFormat(startTime, endTime)
+      const isDateFormatInvalid = validateAppointmentDate(startTime, endTime)
       if (isDateFormatInvalid) {
         throw new UserInputError(isDateFormatInvalid)
       }
