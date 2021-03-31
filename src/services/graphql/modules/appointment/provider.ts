@@ -81,6 +81,7 @@ export class AppointmentProvider {
       startTime: momentStartTimeUnix,
       endTime: momentEndTimeUnix,
     }
+
     // Book appointment
     const params = {
       TableName: this.tableName,
